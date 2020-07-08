@@ -1,0 +1,84 @@
+version: '3'
+services:
+  # Main container with Airflow Webserver, Scheduler, Celery Flower
+  airflow:
+    image: apache/airflow:1.10.10-python3.7
+    depends_on:
+      - airflow-db
+      - broker
+
+    restart: always
+
+    entrypoint: /bin/bash
+    command: >
+      -c " /entrypoint initdb &&
+           sleep 10 &&
+          (/entrypoint webserver &) &&
+          (/entrypoint flower &) &&
+           /entrypoint scheduler"
+             
+    environment:
+      - AIRFLOW__CORE__DAGS_FOLDER=/dags
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@airflow-db:5432/airflow
+      
+      - AIRFLOW__CORE__PARALLELISM=128
+      - AIRFLOW__CORE__DAG_CONCURRENCY=16
+      - AIRFLOW__CORE__MAX_ACTIVE_RUNS_PER_DAG=4
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
+      
+      - AIRFLOW__EMAIL__DEFAULT_EMAIL_ON_RETRY=False
+      - AIRFLOW__EMAIL__DEFAULT_EMAIL_ON_FAILURE=False
+      
+      - AIRFLOW__CELERY__BROKER_URL=redis://broker:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@airflow-db/airflow
+
+      - AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=30
+      - AIRFLOW__SCHEDULER__CATCHUP_BY_DEFAULT=False
+      - AIRFLOW__SCHEDULER__MAX_THREADS=8
+      
+    ports:
+      # Celery Flower
+      - 5555:5555
+      # Airflow Webserver
+      - 8080:8080
+      
+    volumes:
+      - ./dags:/dags
+
+
+  # DB for the Airflow metadata
+  airflow-db:
+    image: postgres:12.3-alpine
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+
+
+  # Redis as a Celery broker
+  broker:
+    image: redis:6.0.5-alpine
+
+
+  # Celery worker, will be scaled using `--scale=n`
+  worker:
+    image: apache/airflow:1.10.10-python3.7
+    command: worker
+    
+    depends_on:
+      - airflow
+
+    restart: always
+      
+    environment:
+      - AIRFLOW__CORE__DAGS_FOLDER=/dags
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@airflow-db:5432/airflow
+      
+      - AIRFLOW__CELERY__BROKER_URL=redis://broker:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@airflow-db/airflow
+    
+    volumes:
+      - ./dags:/dags
