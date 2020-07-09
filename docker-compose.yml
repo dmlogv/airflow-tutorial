@@ -75,6 +75,8 @@ services:
     
     depends_on:
       - airflow
+      - airflow-db
+      - broker
 
     restart: always
       
