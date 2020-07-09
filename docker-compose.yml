@@ -7,7 +7,7 @@ services:
 
   # DB for the Airflow metadata
   airflow-db:
-    image: postgres:12.3-alpine
+    image: postgres:10.13-alpine
     environment:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
