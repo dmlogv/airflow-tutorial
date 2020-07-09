@@ -1,13 +1,16 @@
-version: '3'
+version: '2.2'
 services:
   # Redis as a Celery broker
   broker:
     image: redis:6.0.5-alpine
+    mem_limit: 500m
 
 
   # DB for the Airflow metadata
   airflow-db:
     image: postgres:10.13-alpine
+    mem_limit: 500m
+
     environment:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
@@ -17,6 +20,8 @@ services:
   # Main container with Airflow Webserver, Scheduler, Celery Flower
   airflow:
     image: apache/airflow:1.10.10-python3.7
+    mem_limit: 1000m
+
     depends_on:
       - airflow-db
       - broker
@@ -66,6 +71,7 @@ services:
   worker:
     image: apache/airflow:1.10.10-python3.7
     command: worker
+    mem_limit: 1000m
     
     depends_on:
       - airflow
