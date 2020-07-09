@@ -1,5 +1,19 @@
 version: '3'
 services:
+  # Redis as a Celery broker
+  broker:
+    image: redis:6.0.5-alpine
+
+
+  # DB for the Airflow metadata
+  airflow-db:
+    image: postgres:12.3-alpine
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+
+
   # Main container with Airflow Webserver, Scheduler, Celery Flower
   airflow:
     image: apache/airflow:1.10.10-python3.7
@@ -46,20 +60,6 @@ services:
       
     volumes:
       - ./dags:/dags
-
-
-  # DB for the Airflow metadata
-  airflow-db:
-    image: postgres:12.3-alpine
-    environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
-
-
-  # Redis as a Celery broker
-  broker:
-    image: redis:6.0.5-alpine
 
 
   # Celery worker, will be scaled using `--scale=n`
