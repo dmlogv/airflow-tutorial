@@ -86,6 +86,12 @@ services:
       - AIRFLOW__CORE__DAGS_FOLDER=/dags
       - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@airflow-db:5432/airflow
+
+      - AIRFLOW__CORE__PARALLELISM=128
+      - AIRFLOW__CORE__DAG_CONCURRENCY=16
+      - AIRFLOW__CORE__MAX_ACTIVE_RUNS_PER_DAG=4
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
       
       - AIRFLOW__CELERY__BROKER_URL=redis://broker:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://airflow:airflow@airflow-db/airflow
