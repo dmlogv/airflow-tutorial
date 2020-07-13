@@ -37,6 +37,8 @@ services:
     environment:
       - AIRFLOW__CORE__DAGS_FOLDER=/dags
       - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__FERNET_KEY=MJNz36Q8222VOQhBOmBROFrmeSxNOgTCMaVp2_HOtE0=
+      - AIRFLOW__CORE__HOSTNAME_CALLABLE=airflow.utils.net:get_host_ip_address
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@airflow-db:5432/airflow
       
       - AIRFLOW__CORE__PARALLELISM=128
@@ -87,6 +89,8 @@ services:
     environment:
       - AIRFLOW__CORE__DAGS_FOLDER=/dags
       - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__FERNET_KEY=MJNz36Q8222VOQhBOmBROFrmeSxNOgTCMaVp2_HOtE0=
+      - AIRFLOW__CORE__HOSTNAME_CALLABLE=airflow.utils.net:get_host_ip_address
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@airflow-db:5432/airflow
 
       - AIRFLOW__CORE__PARALLELISM=128
