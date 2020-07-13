@@ -1,15 +1,19 @@
 from collections import namedtuple
 from datetime import datetime, timedelta
+from textwrap import dedent
 
 from airflow import DAG
 from airflow.contrib.operators.vertica_operator import VerticaOperator
 from airflow.operators.email_operator import EmailOperator
-from airflow.operators.slack_operator import SlackAPIPostOperator
+from airflow.utils.trigger_rule import TriggerRule
+
+from commons.operators import TelegramBotSendMessage
 
 
 dag = DAG('update_reports',
           start_date=datetime(2020, 6, 7, 6),
-          schedule_interval=timedelta(days=1))
+          schedule_interval=timedelta(days=1),
+          default_args={'retries': 3, 'retry_delay': timedelta(seconds=10)})
 
 
 Report = namedtuple('Report', 'source target')
@@ -22,10 +26,26 @@ reports = [Report(f'{table}_view', table) for table in [
 
 
 email = EmailOperator(
-    task_id='email', subject='DWH Reports updated',
-    html_content='')
+    task_id='email_success', dag=dag,
+    to='{{ var.value.all_the_kings_men }}',
+    subject='DWH Reports updated',
+    html_content=dedent("""Господа хорошие, отчеты обновлены"""),
+    trigger_rule=TriggerRule.ALL_SUCCESS)
 
-slack = SlackAPIPostOperator()
+
+# TODO: fix a failed deps printout
+tg = TelegramBotSendMessage(
+    task_id='telegram_fail', dag=dag,
+    tg_bot_conn_id='tg_main',
+    chat_id='{{ var.value.failures_chat }}',
+    message=dedent("""\
+        🔥 Наташ, просыпайся, мы {{ dag.dag_id }} уронили
+        
+        {% for dep in task_instance.get_failed_dep_statuses() %}
+        - {{ dep.dep_name, dep.passed, dep.reason }}
+        {% endfor %}
+        """),
+    trigger_rule=TriggerRule.ONE_FAILED)
 
 
 for source, target in reports:
@@ -34,7 +54,8 @@ for source, target in reports:
 
     report_update = VerticaOperator(
         task_id=target.replace('reports.', ''),
-        sql=queries, vertica_conn_id='dwh', dag=dag)
+        sql=queries, vertica_conn_id='dwh',
+        task_concurrency=1, dag=dag)
 
-    report_update >> [email, slack]
+    report_update >> [email, tg]
 
