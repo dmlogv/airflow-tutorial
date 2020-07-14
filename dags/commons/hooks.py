@@ -25,7 +25,7 @@ class TelegramBotHook(BaseHook):
         extra = self.get_connection(self.tg_bot_conn_id).extra_dejson
         self.tg_bot_token = extra['bot_token']
         self.client = TelegramBot(self.tg_bot_token)
-        return TelegramBot(self.tg_bot_token)
+        return self.client
 
 
 class TelegramBot:
