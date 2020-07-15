@@ -14,6 +14,9 @@ services:
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
 
+    volumes:
+      - ./db:/var/lib/postgresql/data
+
 
   # Main container with Airflow Webserver, Scheduler, Celery Flower
   airflow:
