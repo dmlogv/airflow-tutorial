@@ -1,2 +1,3 @@
+psycopg2-binary
 requests_toolbelt
 vertica_python
