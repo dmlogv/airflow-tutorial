@@ -1,3 +1,5 @@
+pandas
 psycopg2-binary
+pymssql
 requests_toolbelt
 vertica_python
