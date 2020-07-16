@@ -1,3 +1,6 @@
+from sys import stderr
+
+
 class Session:
     """ETL workflow session
 
@@ -26,7 +29,13 @@ class Session:
         if any(exc_type, exc_val, exc_tb):
             self.successful = False
             self.comment = f'{exc_type}: {exc_val}\n{exc_tb}'
+            print(exc_type, exc_val, exc_tb, file=stderr)
         self.close()
+
+    def __repr__(self):
+        return (f'<{self.__class__.__name__} ' 
+                f'id={self.id} ' 
+                f'task_name="{self.task_name}">')
 
     @property
     def task_name(self):
@@ -64,6 +73,7 @@ class Session:
             RETURNING id;
             """
         self.id = self._execute(query, self.task_name)
+        print(self, 'opened')
         return self
 
     def close(self):
@@ -82,6 +92,10 @@ class Session:
             """
         self._execute(query, self.successful, self.loaded_rows,
                       self.comment, self.id)
+        print(self, 'closed',
+              ', successful: ', self.successful,
+              ', Loaded: ', self.loaded_rows,
+              ', comment:', self.comment)
 
 
 class SessionError(Exception):
