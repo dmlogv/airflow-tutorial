@@ -56,9 +56,9 @@ services:
       - broker
 
     command: >
-      -c " /entrypoint initdb &&
-           sleep 10 &&
+      -c " sleep 10 &&
            pip install --user -r /requirements.txt &&
+           /entrypoint initdb &&
           (/entrypoint webserver &) &&
           (/entrypoint flower &) &&
            /entrypoint scheduler"
@@ -82,8 +82,9 @@ services:
     <<: *airflow-base
 
     command: >
-      -c " pip install --user -r /requirements.txt &&
-          /entrypoint worker"
+      -c " sleep 10 &&
+           pip install --user -r /requirements.txt &&
+           /entrypoint worker"
     
     depends_on:
       - airflow
