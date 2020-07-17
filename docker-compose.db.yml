@@ -2,11 +2,9 @@ version: '3.4'
 
 x-mssql-base: &mssql-base
   image: mcr.microsoft.com/mssql/server:2017-CU19-ubuntu-16.04
-  entrypoint: /bin/bash
-
   environment:
     ACCEPT_EULA: Y
-    SA_PASSWORD: సత్యనాదెళ్ల
+    SA_PASSWORD: SayThanksToSatiaAt2020
     MSSQL_MEMORY_LIMIT_MB: 1024
 
 
@@ -18,12 +16,12 @@ services:
     <<: *mssql-base
 
   mssql_init:
-    image: giang/docker-py3-mssql:latest
+    image: mio101/py3-sql-db-client-base
     command: python3 ./mssql_init.py
     depends_on:
       - mssql_0
     environment:
-      SA_PASSWORD: సత్యనాదెళ్ల
+      SA_PASSWORD: SayThanksToSatiaAt2020
     volumes:
       - ./mssql_init.py:/mssql_init.py
       - ./dags/commons/datasources.py:/commons/datasources.py

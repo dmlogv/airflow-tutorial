@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from os import getenv
 from random import randint
+from time import sleep
 
-import pyodbc
+import pymssql
 
 from commons.datasources import sql_server_ds
 
@@ -25,11 +26,8 @@ class Randy:
                 randint(-100, 100))
 
 
-def test_randy():
-    r = Randy()
-    for _ in r:
-        print(_)
-
+print('Wait...')
+sleep(30)
 
 prev_host, conn, cursor = None, None, None
 
@@ -38,19 +36,19 @@ for host, db in sorted(sql_server_ds, key=lambda x: x.conn_id):
 
     if not host == prev_host:
         prev_host = host
-        conn = pyodbc.connect(
+        conn = pymssql.connect(
             server=host, database='master',
-            user='sa', password=getenv('SA_PASSWORD'),
-            autocommit=True)
+            user='sa', password=getenv('SA_PASSWORD'))
 
         cursor = conn.cursor()
 
     print('Create DB', db)
-    cursor.execute('CREATE DATABASE %s', db)
+    conn.autocommit(True)
+    cursor.execute(f'CREATE DATABASE {db}')
 
     print('Create table')
-    cursor.execute("""
-        USE %s;
+    cursor.execute(f"""
+        USE {db};
         CREATE TABLE dbo.Orders (
             id         bigint IDENTITY(1, 1) PRIMARY KEY,
             start_time datetime2, 
@@ -67,6 +65,10 @@ for host, db in sorted(sql_server_ds, key=lambda x: x.conn_id):
         INSERT dbo.Orders(start_time, end_time, type)
         VALUES (%s, %s, %s)
         """, [next(r) for _ in range(randint(1000, 2000))])
+
+    print('Check')
+    cursor.execute('SELECT COUNT(1) FROM dbo.Orders')
+    print('Inserted', cursor.fetchone()[0])
     conn.commit()
 
     print('Done')
