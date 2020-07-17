@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from os import getenv
 from random import randint
 from time import sleep
+from concurrent.futures import ThreadPoolExecutor
 
 import pymssql
 
@@ -29,18 +30,15 @@ class Randy:
 print('Wait...')
 sleep(30)
 
-prev_host, conn, cursor = None, None, None
 
-for host, db in sorted(sql_server_ds, key=lambda x: x.conn_id):
+def init_db(host, db):
     print(host, db)
 
-    if not host == prev_host:
-        prev_host = host
-        conn = pymssql.connect(
-            server=host, database='master',
-            user='sa', password=getenv('SA_PASSWORD'))
+    conn = pymssql.connect(
+        server=host, database='master',
+        user='sa', password=getenv('SA_PASSWORD'))
 
-        cursor = conn.cursor()
+    cursor = conn.cursor()
 
     print('Create DB', db)
     conn.autocommit(True)
@@ -72,3 +70,13 @@ for host, db in sorted(sql_server_ds, key=lambda x: x.conn_id):
     conn.commit()
 
     print('Done')
+
+    cursor.close()
+    conn.close()
+
+
+pool = ThreadPoolExecutor(max_workers=20)
+pool.map(
+    lambda x: init_db(x.conn_id, x.schema),
+    sorted(sql_server_ds, key=lambda x: x.conn_id))
+
