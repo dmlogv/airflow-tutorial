@@ -5,6 +5,7 @@ x-mssql-base: &mssql-base
   restart: always
   environment:
     ACCEPT_EULA: Y
+    MSSQL_PID: Express
     SA_PASSWORD: SayThanksToSatiaAt2020
     MSSQL_MEMORY_LIMIT_MB: 1024
 
