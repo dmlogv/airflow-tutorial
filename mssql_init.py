@@ -85,7 +85,7 @@ def suppress_exceptions(f, *args, **kwargs):
             break
 
 
-pool = ThreadPoolExecutor(max_workers=20)
-for host, db in sorted(sql_server_ds, key=lambda x: x.conn_id):
-    pool.submit(suppress_exceptions, init_db, host, db)
+with ThreadPoolExecutor(max_workers=10) as pool:
+    for host, db in sorted(sql_server_ds, key=lambda x: x.conn_id):
+        pool.submit(suppress_exceptions, init_db, host, db)
 
