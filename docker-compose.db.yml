@@ -17,11 +17,27 @@ services:
   mssql_0:
     <<: *mssql-base
 
+  mssql_1:
+    <<: *mssql-base
+
+  mssql_2:
+    <<: *mssql-base
+
+  mssql_3:
+    <<: *mssql-base
+
+  mssql_4:
+    <<: *mssql-base
+
   mssql_init:
     image: mio101/py3-sql-db-client-base
     command: python3 ./mssql_init.py
     depends_on:
       - mssql_0
+      - mssql_1
+      - mssql_2
+      - mssql_3
+      - mssql_4
     environment:
       SA_PASSWORD: SayThanksToSatiaAt2020
     volumes:
