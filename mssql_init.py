@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from os import getenv
 from random import randint
+from sys import stderr
 from time import sleep
 from concurrent.futures import ThreadPoolExecutor
 
@@ -34,49 +35,51 @@ sleep(30)
 def init_db(host, db):
     print(host, db)
 
-    conn = pymssql.connect(
+    with pymssql.connect(
         server=host, database='master',
-        user='sa', password=getenv('SA_PASSWORD'))
+        user='sa', password=getenv('SA_PASSWORD')) as conn:
 
-    cursor = conn.cursor()
+        with conn.cursor() as cursor:
+            print('Create DB', db)
+            conn.autocommit(True)
+            cursor.execute(f'CREATE DATABASE {db}')
 
-    print('Create DB', db)
-    conn.autocommit(True)
-    cursor.execute(f'CREATE DATABASE {db}')
+            print('Create table')
+            cursor.execute(f"""
+                USE {db};
+                CREATE TABLE dbo.Orders (
+                    id         bigint IDENTITY(1, 1) PRIMARY KEY,
+                    start_time datetime2, 
+                    end_time   datetime2, 
+                    type       int,
+                    data       uniqueidentifier DEFAULT NEWID()
+                )
+                """)
 
-    print('Create table')
-    cursor.execute(f"""
-        USE {db};
-        CREATE TABLE dbo.Orders (
-            id         bigint IDENTITY(1, 1) PRIMARY KEY,
-            start_time datetime2, 
-            end_time   datetime2, 
-            type       int,
-            data       uniqueidentifier DEFAULT NEWID()
-        )
-        """)
+            print('Put data')
+            r = Randy()
+            conn.autocommit(False)
+            cursor.executemany("""
+                INSERT dbo.Orders(start_time, end_time, type)
+                VALUES (%s, %s, %s)
+                """, [next(r) for _ in range(randint(1000, 2000))])
 
-    print('Put data')
-    r = Randy()
-    conn.autocommit(False)
-    cursor.executemany("""
-        INSERT dbo.Orders(start_time, end_time, type)
-        VALUES (%s, %s, %s)
-        """, [next(r) for _ in range(randint(1000, 2000))])
+            print('Check')
+            cursor.execute('SELECT COUNT(1) FROM dbo.Orders')
+            print('Inserted', cursor.fetchone()[0])
+            conn.commit()
 
-    print('Check')
-    cursor.execute('SELECT COUNT(1) FROM dbo.Orders')
-    print('Inserted', cursor.fetchone()[0])
-    conn.commit()
+            print('Done')
 
-    print('Done')
 
-    cursor.close()
-    conn.close()
+def suppress_exceptions(f, *args, **kwargs):
+    try:
+        f(*args, **kwargs)
+    except Exception as e:
+        print(f.__name__, *args, *kwargs, e, file=stderr)
 
 
 pool = ThreadPoolExecutor(max_workers=20)
-pool.map(
-    lambda x: init_db(x.conn_id, x.schema),
-    sorted(sql_server_ds, key=lambda x: x.conn_id))
+for host, db in sorted(sql_server_ds, key=lambda x: x.conn_id):
+    pool.submit(suppress_exceptions, init_db, host, db)
 
