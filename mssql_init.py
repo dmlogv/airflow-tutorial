@@ -73,10 +73,16 @@ def init_db(host, db):
 
 
 def suppress_exceptions(f, *args, **kwargs):
-    try:
-        f(*args, **kwargs)
-    except Exception as e:
-        print(f.__name__, *args, *kwargs, e, file=stderr)
+    retries = 5
+    for i in range(retries):
+        try:
+            f(*args, **kwargs)
+        except Exception as e:
+            print(f.__name__, *args, *kwargs, e,
+                  'Try', i, '/', retries, file=stderr)
+            sleep(randint(5, 20))
+        else:
+            break
 
 
 pool = ThreadPoolExecutor(max_workers=20)
