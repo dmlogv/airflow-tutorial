@@ -72,7 +72,7 @@ class Session:
             VALUES (%s, NULL)
             RETURNING id;
             """
-        self.id = self._execute(query, self.task_name)
+        self._id = self._execute(query, self.task_name)
         print(self, 'opened')
         return self
 
