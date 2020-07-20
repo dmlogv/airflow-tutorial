@@ -31,7 +31,7 @@ def workflow(src_conn_id, src_schema, dt,
 
     with Session(etl_conn, f'{dag.dag_id}__{src_schema}') as session:
         # Load data
-        source_conn = MsSqlHook(mssql_conn_id=src_conn_id, schema=src_schema)
+        source_conn = MsSqlHook(mssql_conn_id=src_conn_id, schema=src_schema).get_conn()
 
         query = """
             SELECT 
@@ -41,7 +41,7 @@ def workflow(src_conn_id, src_schema, dt,
                 CONVERT(DATE, start_time) = %s
             """
 
-        df = pd.read_sql_query(query, source_conn, params=[dt])
+        df = pd.read_sql_query(query, source_conn, params=(dt,))
 
         # Add service fields
         df['etl_source'] = src_schema
