@@ -7,7 +7,7 @@ class Session:
     Example:
         with Session(task_name) as session:
             print(session.id)
-            session.successful = true
+            session.successful = True
             session.loaded_rows = 15
             session.comment = 'Well done'
     """
