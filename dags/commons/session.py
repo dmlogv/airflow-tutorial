@@ -26,7 +26,7 @@ class Session:
         return self.open()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if any(exc_type, exc_val, exc_tb):
+        if any([exc_type, exc_val, exc_tb]):
             self.successful = False
             self.comment = f'{exc_type}: {exc_val}\n{exc_tb}'
             print(exc_type, exc_val, exc_tb, file=stderr)
