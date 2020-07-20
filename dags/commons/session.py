@@ -14,6 +14,7 @@ class Session:
 
     def __init__(self, connection, task_name):
         self.connection = connection
+        self.connection.autocommit = True
 
         self._task_name = task_name
         self._id = None
