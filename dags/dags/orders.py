@@ -38,10 +38,10 @@ def workflow(src_conn_id, src_schema, dt,
                 id, start_time, end_time, type
             FROM dbo.Orders
             WHERE
-                CONVERT(DATE, start_time) = %s 
+                CONVERT(DATE, start_time) = %s
             """
 
-        df = pd.read_sql_query(source_conn, query, (dt,))
+        df = pd.read_sql_query(query, source_conn, params=[dt])
 
         # Add service fields
         df['etl_source'] = src_schema
