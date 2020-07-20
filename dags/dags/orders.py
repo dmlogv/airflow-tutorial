@@ -16,7 +16,8 @@ from commons.session import Session
 
 dag = DAG('orders',
           schedule_interval=timedelta(hours=6),
-          start_date=datetime(2020, 7, 8, 0))
+          start_date=datetime(2020, 2, 8, 0),
+          default_args={'retries': 3, 'retry_delay': timedelta(seconds=10)})
 
 target_conn_id = 'dwh'
 target_table = 'stage.Orders'
