@@ -26,18 +26,4 @@ sql_server_ds = [Datasource(conn_id, city) for conn_id, city in chain.from_itera
         'kurgan kursk kuznetsk kyzyl labinsk leninogorsk leninsk lesosibirsk lipetsk liski lobnya lysva lytkarino '
         'lyubertsy magadan magnitogorsk makhachkala maykop meleuz mezhdurechensk miass michurinsk mikhaylovka '
         'mikhaylovsk mineralnye minusinsk moscow murmansk '
-        )),
-    ('mssql_3', (
-        'murom mytishchi naberezhnye nakhodka nalchik naro nazran neftekamsk nefteyugansk neryungri nevinnomyssk '
-        'nizhnekamsk nizhnevartovsk noginsk norilsk novoaltaysk novocheboksarsk novocherkassk novokuybyshevsk '
-        'novokuznetsk novomoskovsk novorossiysk novoshakhtinsk novosibirsk novotroitsk novouralsk novy noyabrsk '
-        'nyagan obninsk odintsovo oktyabrsky omsk orekhovo orenburg orsk oryol ozyorsk pavlovo pavlovsky penza perm '
-        'pervouralsk petropavlovsk petrozavodsk podolsk polevskoy prokhladny prokopyevsk pskov '
-        )),
-    ('mssql_4', (
-        'pushkino pyatigorsk ramenskoye reutov revda rossosh rostov rubtsovsk ryazan rybinsk rzhev saint salavat '
-        'salekhard salsk samara saransk sarapul saratov sarov sergiyev serov serpukhov sertolovo severodvinsk '
-        'severomorsk seversk shadrinsk shakhty shali shchyokino shchyolkovo shuya sibay slavyansk smolensk snezhinsk '
-        'sochi solikamsk solnechnogorsk sosnovy stary stavropol sterlitamak stupino sunzha surgut svobodny syktyvkar '
-        'syzran '
         ))])]
