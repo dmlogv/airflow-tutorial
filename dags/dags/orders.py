@@ -17,7 +17,8 @@ from commons.session import Session
 dag = DAG('orders',
           schedule_interval=timedelta(hours=6),
           start_date=datetime(2020, 2, 8, 0),
-          default_args={'retries': 3, 'retry_delay': timedelta(seconds=10)})
+          default_args={'retries': 3, 'retry_delay': timedelta(seconds=10)},
+          catchup=True)
 
 target_conn_id = 'dwh'
 target_table = 'stage.Orders'
@@ -40,7 +41,7 @@ def workflow(src_conn_id, src_schema, dt,
                 CONVERT(DATE, start_time) = %s 
             """
 
-        df = pd.from_sql(source_conn, query, (dt,))
+        df = pd.read_sql_query(source_conn, query, (dt,))
 
         # Add service fields
         df['etl_source'] = src_schema
