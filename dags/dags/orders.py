@@ -5,6 +5,7 @@ from io import StringIO
 import pandas as pd
 from airflow import DAG
 from airflow.contrib.hooks.vertica_hook import VerticaHook
+from airflow.contrib.operators.vertica_operator import VerticaOperator
 from airflow.hooks.mssql_hook import MsSqlHook
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.operators.python_operator import PythonOperator
@@ -21,7 +22,8 @@ dag = DAG('orders',
           catchup=True)
 
 target_conn_id = 'dwh'
-target_table = 'stage.Orders'
+target_schema = 'stage'
+target_table = 'Orders'
 
 
 def workflow(src_conn_id, src_schema, dt,
@@ -74,8 +76,29 @@ def workflow(src_conn_id, src_schema, dt,
         session.successful = True
 
 
+create_schema_query = f'CREATE SCHEMA IF NOT EXISTS {target_schema};'
+create_table_query = f"""
+    CREATE TABLE IF NOT EXISTS {target_schema}.{target_table} (
+         id         INT,
+         start_time TIMESTAMP,
+         end_time   TIMESTAMP,
+         type       INT,
+         etl_source VARCHAR(200),
+         etl_id     INT,
+         hash_id    INT PRIMARY KEY
+     );"""
+
+create_table = VerticaOperator(
+    task_id='create_target',
+    sql=[create_schema_query,
+         create_table_query],
+    vertica_conn_id=target_conn_id,
+    task_concurrency=1,
+    dag=dag)
+
+
 for conn_id, schema in sql_server_ds:
-    PythonOperator(
+    load = PythonOperator(
         task_id=schema,
         python_callable=workflow,
         op_kwargs={
@@ -83,5 +106,7 @@ for conn_id, schema in sql_server_ds:
             'src_schema': schema,
             'dt': '{{ ds }}',
             'target_conn_id': target_conn_id,
-            'target_table': target_table},
+            'target_table': f'{target_schema}.{target_table}'},
         dag=dag)
+
+    create_table >> load
