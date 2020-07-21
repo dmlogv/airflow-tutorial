@@ -35,15 +35,15 @@ def workflow(src_conn_id, src_schema, dt,
         # Load data
         source_conn = MsSqlHook(mssql_conn_id=src_conn_id, schema=src_schema).get_conn()
 
-        query = """
+        query = f"""
             SELECT 
                 id, start_time, end_time, type, data
             FROM dbo.Orders
             WHERE
-                CONVERT(DATE, start_time) = %s
+                CONVERT(DATE, start_time) = '{dt}'
             """
 
-        df = pd.read_sql_query(query, source_conn, params=(dt,))
+        df = pd.read_sql_query(query, source_conn)
 
         # Add service fields
         df['etl_source'] = src_schema
