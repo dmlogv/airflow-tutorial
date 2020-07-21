@@ -37,7 +37,7 @@ def workflow(src_conn_id, src_schema, dt,
 
         query = """
             SELECT 
-                id, start_time, end_time, type
+                id, start_time, end_time, type, data
             FROM dbo.Orders
             WHERE
                 CONVERT(DATE, start_time) = %s
@@ -83,6 +83,7 @@ create_table_query = f"""
          start_time TIMESTAMP,
          end_time   TIMESTAMP,
          type       INT,
+         data       VARCHAR(32),
          etl_source VARCHAR(200),
          etl_id     INT,
          hash_id    INT PRIMARY KEY
