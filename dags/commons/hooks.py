@@ -46,7 +46,8 @@ class TelegramBot:
         method = 'sendMessage'
 
         payload = {'chat_id': chat_id or self.chat_id,
-                   'text': message}
+                   'text': message,
+                   'parse_mode': 'MarkdownV2'}
 
         response = self.session.post(method, data=payload).json()
         if not response.get('ok'):
