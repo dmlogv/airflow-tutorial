@@ -17,7 +17,7 @@ from commons.session import Session
 
 
 dag = DAG('orders',
-          schedule_interval=timedelta(hours=6),
+          schedule_interval=timedelta(hours=12),
           start_date=datetime(2020, 2, 8, 0),
           default_args={'retries': 3, 'retry_delay': timedelta(seconds=10)},
           catchup=True)

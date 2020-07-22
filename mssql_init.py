@@ -12,7 +12,7 @@ from commons.datasources import sql_server_ds
 
 class Randy:
     def __init__(self):
-        self.seed = randint(1575e6, 1590e6)
+        self.seed = randint(158102e4, 158132e4)
         self.start = datetime.utcfromtimestamp(self.seed)
         self.i = 0
 
@@ -20,7 +20,7 @@ class Randy:
         return self
 
     def __next__(self):
-        shift = timedelta(seconds=randint(10, 100)) * self.i
+        shift = timedelta(seconds=randint(1, 10)) * self.i
         interval = timedelta(seconds=randint(100, 1000))
         self.i += 1
         return (self.start + shift,
