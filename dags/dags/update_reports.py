@@ -33,17 +33,12 @@ email = EmailOperator(
     trigger_rule=TriggerRule.ALL_SUCCESS)
 
 
-# TODO: fix a failed deps printout
 tg = TelegramBotSendMessage(
     task_id='telegram_fail', dag=dag,
     tg_bot_conn_id='tg_main',
     chat_id='{{ var.value.failures_chat }}',
     message=dedent("""\
         🔥 Наташ, просыпайся, мы {{ dag.dag_id }} уронили
-        
-        {% for dep in task_instance.get_failed_dep_statuses() %}
-        - {{ dep.dep_name, dep.passed, dep.reason }}
-        {% endfor %}
         """),
     trigger_rule=TriggerRule.ONE_FAILED)
 
