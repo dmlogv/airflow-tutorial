@@ -10,8 +10,8 @@ x-airflow-config: &airflow-config
   AIRFLOW__CORE__HOSTNAME_CALLABLE: airflow.utils.net:get_host_ip_address
   AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgres+psycopg2://airflow:airflow@airflow-db:5432/airflow
 
-  AIRFLOW__CORE__PARALLELISM: 128
-  AIRFLOW__CORE__DAG_CONCURRENCY: 64
+  AIRFLOW__CORE__PARALLELISM: 16
+  AIRFLOW__CORE__DAG_CONCURRENCY: 4
   AIRFLOW__CORE__MAX_ACTIVE_RUNS_PER_DAG: 2
 
   AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
@@ -23,7 +23,7 @@ x-airflow-config: &airflow-config
   AIRFLOW__CELERY__BROKER_URL: redis://broker:6379/0
   AIRFLOW__CELERY__OPERATION_TIMEOUT: 10
   AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@airflow-db/airflow
-  AIRFLOW__CELERY__WORKER_CONCURRENCY: 64
+  AIRFLOW__CELERY__WORKER_CONCURRENCY: 2
 
 
 x-airflow-base: &airflow-base

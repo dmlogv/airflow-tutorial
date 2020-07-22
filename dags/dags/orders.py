@@ -6,6 +6,7 @@ import pandas as pd
 from airflow import DAG
 from airflow.contrib.hooks.vertica_hook import VerticaHook
 from airflow.contrib.operators.vertica_operator import VerticaOperator
+from airflow.exceptions import AirflowSkipException
 from airflow.hooks.mssql_hook import MsSqlHook
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.operators.python_operator import PythonOperator
@@ -44,6 +45,10 @@ def workflow(src_conn_id, src_schema, dt,
             """
 
         df = pd.read_sql_query(query, source_conn)
+
+        # Skip if no rows
+        if df.empty:
+            raise AirflowSkipException('No rows to load')
 
         # Add service fields
         df['etl_source'] = src_schema
